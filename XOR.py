@@ -116,3 +116,21 @@ def main():
         # print(valid_percentage)
         if i == 100: break
     print("\ttook ", i, " iterations to achieve a valid percentage of ", valid_percentage)
+
+    # Construct XOR gate
+    print("Constructing Network...")
+    def XOR(x1, x2):
+        o1 = float(OR.predict([x1, x2]))
+        o2 = float(NOT.predict([float(AND.predict([x1, x2]))]))
+        return AND.predict([o1, o2])
+    print("Done!")
+
+    # I/O
+    input_str = input("Please enter two inputs:\n")
+    while input_str != "exit":
+        x1, x2 = [float(x) for x in input_str.split()]
+        print("XOR Gate:%1d" % (XOR(x1, x2)))
+        input_str = input("Please enter two inputs:\n")
+
+if __name__ == '__main__':
+    main()

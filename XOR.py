@@ -5,7 +5,7 @@
 import random
 from Perceptron import Perceptron
 
-if __name__ == '__main__':
+def main():
     num_gate = 0
     num_train = 100
     num_valid = 100
@@ -82,3 +82,37 @@ if __name__ == '__main__':
     print("\ttook ", i, " iterations to achieve a valid percentage of ", valid_percentage)
 
     # OR Gate
+    num_gate += 1
+    OR = Perceptron(2, bias=-0.75)
+
+    # generating training set
+    training_examples = []
+    training_labels = []
+    for i in range(num_train):
+        training_examples.append([random.random(), random.random()])
+        # noise tolerance: all examples where x1 or x2 > 0.75 -> 1.0
+        training_labels.append(1.0 if training_examples[i][0] > 0.75 or training_examples[i][1] > 0.75 else 0.0)
+
+    # generating validation set
+    validate_examples = []
+    validate_labels = []
+    for i in range(num_train):
+        validate_examples.append([random.random(), random.random()])
+        # noise tolerance: all examples where x1 or x2 > 0.75 -> 1.0
+        validate_labels.append(1.0 if validate_examples[i][0] > 0.75 or validate_examples[i][1] > 0.75 else 0.0)
+
+    # start training OR gate
+    print("Training GATE_%1d..." % (num_gate))
+    # print(OR.weights)
+    valid_percentage = OR.validate(validate_examples, validate_labels, verbose=False)
+    # print(valid_percentage)
+    i = 0
+    while valid_percentage < 0.98: # want AND Perceptron to have an accuracy of at least 98%
+        i += 1
+        OR.train(training_examples, training_labels, 0.2)  # Train our Perceptron
+        # print('------ Iteration ' + str(i) + ' ------')
+        # print(OR.weights)
+        valid_percentage = OR.validate(validate_examples, validate_labels, verbose=False) # Validate it
+        # print(valid_percentage)
+        if i == 100: break
+    print("\ttook ", i, " iterations to achieve a valid percentage of ", valid_percentage)

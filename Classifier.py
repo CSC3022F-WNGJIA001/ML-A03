@@ -26,20 +26,28 @@ input_size = 28*28 # number of pixels in a single image
 hidden_sizes = [128, 64] # number of nodes in hidden layers
 output_size = 10 # number of output nodes (0...9)
 
-model = nn.Sequential(nn.Linear(input_size, hidden_sizes[0]),
-                      nn.ReLU(),
-                      nn.Linear(hidden_sizes[0], hidden_sizes[1]),
-                      nn.ReLU(),
-                      nn.Linear(hidden_sizes[1], output_size),
-                      nn.LogSoftmax(dim=1))
+class NeuralNetwork(nn.Module):
+    def __init__(self):
+        super(NeuralNetwork, self).__init__()
+        self.linear = nn.Sequential(nn.Linear(input_size, hidden_sizes[0]),
+                                    nn.ReLU(),
+                                    nn.Linear(hidden_sizes[0], hidden_sizes[1]),
+                                    nn.ReLU(),
+                                    nn.Linear(hidden_sizes[1], output_size),
+                                    nn.LogSoftmax(dim=1))
+
+    def forward(self, images):
+        images = images.view(images.shape[0], -1) # flaten images with size [64,784]
+        x = self.linear(images)
+        return x
+
+model = NeuralNetwork()
 # loss function
 criterion = nn.NLLLoss() # negative log-likelihood loss
 # defining the optimiser with stochastic gradient descent and default parameters
 optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
 # training the nn
-epochs = 15 # total number of iteration for training
-
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, (X, y) in enumerate(dataloader):
@@ -70,21 +78,11 @@ def test_loop(dataloader, model, loss_fn):
     correct /= size
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
+epochs = 10 # number of iteration for training
+
 for e in range(epochs):
-        running_loss = 0
-        for images, labels in train_loader:
-            # flaten MNIST images with size [64,784]
-            images = images.view(images.shape[0], -1)
-            # reset the gradients, do this because gradients are accumulated
-            optimizer.zero_grad()
-            # forward pass
-            output = model(images) # modeling for each image batch
-            loss = criterion(output, labels) # calculating the loss
-            # backpropagating
-            loss.backward()
-            # optimizes and updates weights
-            optimizer.step()
-            # calculating the loss
-            running_loss += loss.item()
-        else:
-            print("Epoch {} - Training loss: {}".format(e, running_loss/len(train_loader)))
+    print(f"Epoch {e+1}\n-------------------------------")
+    train_loop(train_loader, model, criterion, optimizer)
+    test_loop(test_loader, model, criterion)
+
+print("Done!")

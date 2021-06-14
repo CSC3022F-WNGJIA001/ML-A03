@@ -77,19 +77,19 @@ def test_loop(dataloader, model, loss_fn):
     correct /= size
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
-epochs = 1 # number of iteration for training
+epochs = 10 # number of iteration for training
 for e in range(epochs):
     print(f"Epoch {e+1}\n-------------------------------")
     train_loop(train_loader, model, criterion, optimizer)
     test_loop(test_loader, model, criterion)
 print("Done!")
 
-# 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.eval()
+model.eval() # set the model to evaluation mode (so parameters are not altered)
 test_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,)),])
 # function to predict image
 def predict_image(image):
+    # preprocessing the input image
     image_tensor = test_transforms(image).float()
     image_tensor = image_tensor.unsqueeze_(0)
     input = Variable(image_tensor)
@@ -97,9 +97,12 @@ def predict_image(image):
     output = model(input)
     index = output.data.cpu().numpy().argmax()
     return index
-
+# I/O
 input_str = input("Please enter a filepath:\n")
-while input_str != "exit":
-    with Image.open(input_str) as img:
-        print(predict_image(img))
+while True:
+    with Image.open(input_str) as img: # open file as PIL image
+        print("Classifier:", predict_image(img))
     input_str = input("Please enter a filepath:\n")
+    if input_str == "exit":
+        print("Exiting...")
+        break

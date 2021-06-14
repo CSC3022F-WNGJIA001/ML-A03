@@ -109,7 +109,7 @@ def main():
     i = 0
     while valid_percentage < 0.98: # want AND Perceptron to have an accuracy of at least 98%
         i += 1
-        OR.train(training_examples, training_labels, 0.25)  # Train our Perceptron
+        OR.train(training_examples, training_labels, 0.2)  # Train our Perceptron
         # print('------ Iteration ' + str(i) + ' ------')
         # print(OR.weights)
         valid_percentage = OR.validate(validate_examples, validate_labels, verbose=False) # Validate it

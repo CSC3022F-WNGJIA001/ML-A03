@@ -98,11 +98,10 @@ def predict_image(image):
     index = output.data.cpu().numpy().argmax()
     return index
 # I/O
-input_str = input("Please enter a filepath:\n")
 while True:
-    with Image.open(input_str) as img: # open file as PIL image
-        print("Classifier:", predict_image(img))
     input_str = input("Please enter a filepath:\n")
     if input_str == "exit":
         print("Exiting...")
         break
+    with Image.open(input_str) as img: # open file as PIL image
+        print("Classifier:", predict_image(img))

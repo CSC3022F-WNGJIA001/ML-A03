@@ -2,7 +2,7 @@
 # Part 1: XOR Problem
 # Author: WNGJIA001
 
-import random
+from random import uniform, choice
 from Perceptron import Perceptron
 
 def main():
@@ -11,21 +11,21 @@ def main():
     num_valid = 100
 
     # AND Gate
-    AND = Perceptron(2, bias=-1.0)
+    AND = Perceptron(2, bias=-1.5, seeded_weights=[1, 1])
 
     # generating training set
     training_examples = []
     training_labels = []
     for i in range(num_train):
-        training_examples.append([random.random(), random.random()])
+        training_examples.append([choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)]), choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)])])
         # noise tolerance: all examples where x1 and x2 > 0.75 -> 1.0
         training_labels.append(1.0 if training_examples[i][0] > 0.75 and training_examples[i][1] > 0.75 else 0.0)
 
     # generating validation set
     validate_examples = []
     validate_labels = []
-    for i in range(num_train):
-        validate_examples.append([random.random(), random.random()])
+    for i in range(num_valid):
+        validate_examples.append([choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)]), choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)])])
         # noise tolerance: all examples where x1 and x2 > 0.75 -> 1.0
         validate_labels.append(1.0 if validate_examples[i][0] > 0.75 and validate_examples[i][1] > 0.75 else 0.0)
 
@@ -47,21 +47,21 @@ def main():
 
     # NOT Gate
     num_gate += 1
-    NOT = Perceptron(1, bias=0.75)
+    NOT = Perceptron(1, bias=0.75, seeded_weights=[-1])
 
     # generating training set
     training_examples = []
     training_labels = []
     for i in range(num_train):
-        training_examples.append([random.random()])
+        training_examples.append([choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)])])
         # noise tolerance: all examples where x1 > 0.75 -> 0.0
         training_labels.append(0.0 if training_examples[i][0] > 0.75 else 1.0)
 
     # generating validation set
     validate_examples = []
     validate_labels = []
-    for i in range(num_train):
-        validate_examples.append([random.random()])
+    for i in range(num_valid):
+        validate_examples.append([choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)])])
         # noise tolerance: all examples where x1 > 0.75 -> 0.0
         validate_labels.append(0.0 if validate_examples[i][0] > 0.75 else 1.0)
 
@@ -89,15 +89,15 @@ def main():
     training_examples = []
     training_labels = []
     for i in range(num_train):
-        training_examples.append([random.random(), random.random()])
+        training_examples.append([choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)]), choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)])])
         # noise tolerance: all examples where x1 or x2 > 0.75 -> 1.0
         training_labels.append(1.0 if training_examples[i][0] > 0.75 or training_examples[i][1] > 0.75 else 0.0)
 
     # generating validation set
     validate_examples = []
     validate_labels = []
-    for i in range(num_train):
-        validate_examples.append([random.random(), random.random()])
+    for i in range(num_valid):
+        validate_examples.append([choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)]), choice([uniform(-0.25, 0.25), uniform(0.75, 1.25)])])
         # noise tolerance: all examples where x1 or x2 > 0.75 -> 1.0
         validate_labels.append(1.0 if validate_examples[i][0] > 0.75 or validate_examples[i][1] > 0.75 else 0.0)
 
@@ -109,7 +109,7 @@ def main():
     i = 0
     while valid_percentage < 0.98: # want AND Perceptron to have an accuracy of at least 98%
         i += 1
-        OR.train(training_examples, training_labels, 0.2)  # Train our Perceptron
+        OR.train(training_examples, training_labels, 0.25)  # Train our Perceptron
         # print('------ Iteration ' + str(i) + ' ------')
         # print(OR.weights)
         valid_percentage = OR.validate(validate_examples, validate_labels, verbose=False) # Validate it
@@ -121,16 +121,20 @@ def main():
     print("Constructing Network...")
     def XOR(x1, x2):
         o1 = float(OR.predict([x1, x2]))
-        o2 = float(NOT.predict([float(AND.predict([x1, x2]))]))
-        return AND.predict([o1, o2])
+        o2 = float(AND.predict([x1, x2]))
+        o3 = float(NOT.predict([o2]))
+        return AND.predict([o1, o3])
     print("Done!")
 
     # I/O
-    input_str = input("Please enter two inputs:\n")
-    while input_str != "exit":
+
+    while True:
+        input_str = input("Please enter two inputs:\n")
+        if input_str == "exit":
+            print("Exiting...")
+            break
         x1, x2 = [float(x) for x in input_str.split()]
         print("XOR Gate:%1d" % (XOR(x1, x2)))
-        input_str = input("Please enter two inputs:\n")
 
 if __name__ == '__main__':
     main()
